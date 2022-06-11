@@ -91,3 +91,81 @@ export const get_total_score = (uid) => {
             })
     }
 }
+
+export const save_and_update_gamestats = ({
+    uid,
+    point,
+    playCount,
+    userWin,
+    userLoss,
+    userDraw,
+    name,
+    avatar,
+    createdAt,
+    totalpoint,
+    qstring,
+    toast,
+    router,
+}) => {
+    return (dispatch) => {
+        const gameStatRef = collection(db, 'gamestats')
+
+        const playerCollectionRef = doc(db, 'gamepoint', uid)
+        const q = query(collection(db, "games"), where("link", "==", qstring))
+        const x = query(collection(db, "users"), where("playerId", "==", uid))
+
+        getDocs(q).then(s => {
+            const id = s.docs[0].id
+            const data = s.docs[0].data()
+
+            if (!data.users.includes(uid)) {
+                data.users.push(uid)
+            }
+
+            const result = data.users.filter((u) => u !== '')
+            const gamesRps = doc(db, "games", id)
+
+            updateDoc(gamesRps, { users: result })
+            getDocs(x).then(u => {
+                const data = u.docs[0].data()
+
+                let gamesInUser = null
+
+                if (!data.games || data.games.length === 0) {
+                    gamesInUser = [id]
+                }
+
+                if (data.games && !data.games.includes(id)) {
+                    data.games.push(id)
+                }
+
+                updateDoc(doc(db, "users", uid), { games: gamesInUser })
+            })
+        })
+        addDoc(gameStatRef, {
+            playerId: uid,
+            point,
+            playCount,
+            userWin,
+            userLoss,
+            userDraw,
+            name,
+            avatar,
+            createdAt,
+            // users: !q.users.includes(uid) ? [...users, uid] : [...users]
+        })
+            .then(() => {
+                updateDoc(playerCollectionRef, {
+                    totalpoint,
+                    name,
+                    avatar,
+                    updatedAt: createdAt
+                }).then(() => {
+                    toast.success("games successfully saved")
+                    router.push('/home')
+
+                })
+            })
+
+    }
+}
