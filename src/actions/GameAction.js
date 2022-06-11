@@ -48,3 +48,27 @@ export const get_games = () => {
 
     }
 }
+
+export const get_user = (uid) => {
+    return (dispatch) => {
+        const userDocRef = doc(db, 'users', uid)
+        getDoc(userDocRef)
+            .then((doc) => {
+                const data = doc.data()
+                dispatch({
+                    type: GET_USER,
+                    payload: {
+                        data: data,
+                        id: doc.id
+                    }
+                })
+            })
+            .catch((error) => {
+                console.log('failed to connect');
+                dispatch({
+                    type: GET_USER,
+                    payload: null
+                })
+            })
+    }
+}
