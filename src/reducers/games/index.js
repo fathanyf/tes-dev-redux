@@ -20,6 +20,11 @@ const gamesReducer = (state = initialState, action) => {
                 ...state,
                 getUser: action.payload
             }
+        case GET_TOTAL_SCORE:
+            return {
+                ...state,
+                getTotalScore: action.payload
+            }
         default:
             return state
     }
