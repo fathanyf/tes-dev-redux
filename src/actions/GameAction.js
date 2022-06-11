@@ -72,3 +72,22 @@ export const get_user = (uid) => {
             })
     }
 }
+
+export const get_total_score = (uid) => {
+    return (dispatch) => {
+        const q = query(collection(db, "gamepoint"), where("playerId", "==", uid || ''))
+        getDocs(q)
+            .then((snapshot) => {
+                const [doc] = snapshot.docs
+                const data = doc.data()
+
+                dispatch({
+                    type: GET_TOTAL_SCORE,
+                    payload: data.totalpoint
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+    }
+}
