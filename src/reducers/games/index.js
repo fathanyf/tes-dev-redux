@@ -15,6 +15,11 @@ const gamesReducer = (state = initialState, action) => {
                 getGamesLoading: action.payload.loading,
                 getGamesError: action.payload.errorMessage
             }
+        case GET_USER:
+            return {
+                ...state,
+                getUser: action.payload
+            }
         default:
             return state
     }
