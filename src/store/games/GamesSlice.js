@@ -122,6 +122,75 @@ export const quitAndSave = createAsyncThunk(
     }
 )
 
+export const quitAndSaveDummy = createAsyncThunk(
+    'games/quitAndSaveDummy',
+    async (data, thunkAPI) => {
+        try {
+            const updateGameStats = collection(db, 'dummygame')
+
+            const newGameStat = {
+                name: data.name,
+                playerId: data.playerId,
+                point: data.point
+            }
+
+            await getDocs(updateGameStats).then(() => addDoc(updateGameStats, newGameStat))
+        } catch (error) {
+            console.log(error)
+        }
+
+
+        try {
+            const getGamesByQuerry = query(collection(db, "games"), where("link", "==", data.qstring))
+            const getUser = query(collection(db, "users"), where("playerId", "==", data.playerId))
+
+            const snapshot = await getDocs(getGamesByQuerry)
+            const user = await getDocs(getUser)
+
+            const [docs] = snapshot.docs
+            const gameData = docs.data()
+
+            const uid = data.playerId
+            const gid = docs.id
+
+            console.log("gameData.users", data)
+
+            if (!gameData.users.includes(uid)) {
+                gameData.users.push(uid)
+            }
+
+            const result = gameData.users.filter((u) => u !== '')
+            const getGameById = doc(db, "games", gid)
+
+            updateDoc(getGameById, { users: result })
+
+            const [userDoc] = user.docs
+            const userData = userDoc.data()
+            let gamesInUser = null
+
+            console.log("userData.games", userData.games)
+
+            if (!userData.games || userData.games.length === 0) {
+                gamesInUser = [gid]
+            }
+
+            if (userData.games && !userData.games.includes(gid)) {
+                userData.games.push(gid)
+            }
+
+            updateDoc(doc(db, "users", uid), { games: gamesInUser })
+
+        } catch (error) {
+            console.log(error)
+        }
+
+
+
+        data.router.push('/games')
+
+    }
+)
+
 const initialState = {
     games: [],
     addGames: [],
