@@ -2,6 +2,23 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
+export const fetchUserGame = createAsyncThunk(
+  'auth/fetchUserGame',
+  async (uid, thunkAPI) => {
+    const userDocRef = doc(db, 'users', uid)
+    const response = await getDoc(userDocRef)
+    const data = response.data()
+
+    return {
+      ...data,
+      createdAt: {
+        nanoseconds: data.createdAt.nanoseconds + '',
+        seconds: data.createdAt.seconds + '',
+      }
+    }
+  }
+)
+
 export const fetchUserGamePoint = createAsyncThunk(
   'auth/fetchUserGamePoint',
   async (uid, thunkAPI) => {
@@ -60,6 +77,10 @@ export const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserGame.fulfilled, (state, action) => {
+        state.data = action.payload
+      })
     builder.addCase(fetchUserGamePoint.fulfilled, (state, action) => {
       state.data2 = action.payload
     })
