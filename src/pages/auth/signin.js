@@ -1,15 +1,39 @@
 import Head from "next/head"
-import Link from "next/link"
-import { useState } from "react"
-
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { auth } from '../../config/firebase'
+import { login } from '../../store/users/UserSlice'
+import {toast} from 'react-toastify'
 
 const Signin = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const handleSubmit = (e)=>{
+    const dispatch = useDispatch();
+
+    const router = useRouter()
+
+    const handleSubmit = async (e) => {
         e.preventDefault()
+        signInWithEmailAndPassword(auth, email, password)
+            .then((user) => {
+                dispatch(
+                    login({
+                        email: user.user?.email,
+                        uid: user.user?.uid,
+                    })
+                );
+                router.push('/home')
+                toast.success('Success Login')
+            })
+            .catch((err) => {
+                toast.error(err.message)
+            });
     }
+
 
     return (
         <>
