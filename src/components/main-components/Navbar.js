@@ -1,6 +1,23 @@
-import Link from "next/link"
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, selectUser } from '../../store/users/UserSlice';
+import { auth } from '../../config/firebase';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { toast } from 'react-toastify'
 
 const Navbar = () => {
+    const user = useSelector(selectUser);
+
+    const router = useRouter()
+
+    const dispatch = useDispatch();
+
+    const handleLogout = () => {
+        dispatch(logout());
+        auth.signOut();
+        toast.warning("You're now logout")
+        router.push('/auth/signin')
+    };
     return (
         <>
             <nav className="navbar navbar-expand-md navbar-dark navbar-dark">
@@ -24,16 +41,9 @@ const Navbar = () => {
                         </ul>
                     </div>
                     <ul className="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-                        <Link className="nav-item" href={`/auth/signin`}>
-                            <a className="nav-link"><i className="bi bi-box-arrow-in-right"></i> <b>Sign In</b></a>
-                        </Link>
-                        <Link className="nav-item" href={`/auth/signup`}>
-                            <a className="nav-link"><i className="bi bi-door-open"></i> <b>Sign Up</b></a>
-                        </Link>
-                        <Link href={`/account`} className="nav-item dropdown">
-                            <a className="nav-link" href="#">
-                                <i className="bi bi-person-circle mr-1" />
-                                <span>user@gmail.com</span>
+                        <Link className="nav-item" href={{ pathname: '/account', query: { id: user?.uid } }}>
+                            <a className="nav-link">
+                                <i className="far fa-user-circle" /> {user?.email}
                             </a>
                         </Link>
                         <li className="nav-item dropdown bg-dark">
@@ -52,7 +62,7 @@ const Navbar = () => {
                                     <i className="bi bi-key-fill mr-4" /> Reset Password
                                 </a>
                                 <hr />
-                                <button className="dropdown-item text-center"><i className="bi bi-box-arrow-in-left mr-1"></i> Logout</button>
+                                <button className="dropdown-item dropdown-footer" onClick={handleLogout}>Logout</button>
                             </div>
                         </li>
                     </ul>
