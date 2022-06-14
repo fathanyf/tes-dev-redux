@@ -1,9 +1,52 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../config/firebase";
+
+export const fetchUserGamePoint = createAsyncThunk(
+  'auth/fetchUserGamePoint',
+  async (uid, thunkAPI) => {
+    const queries = query(collection(db, "gamepoint"), where("playerId", "==", uid || ''))
+    try {
+
+      const snapshot = await getDocs(queries)
+
+      const [doc] = snapshot.docs
+      const data = doc.data()
+
+      return {
+        ...data,
+        // updatedAt: {
+        //   nanoseconds: data.updatedAt.nanoseconds + '',
+        //   seconds: data.updatedAt.seconds + '',
+        // }
+      }
+    } catch (error) {
+      console.log(error)
+
+    }
+  }
+)
 
 export const userSlice = createSlice({
-  name: 'user',
+  name: 'auth',
   initialState: {
     user: null,
+    data: {
+      address: '',
+      avatar: '',
+      createdAt: '',
+      name: '',
+      phone: '',
+      playerId: ''
+    },
+    data2: {
+      avatar: '',
+      name: '',
+      playerId: '',
+      totalpoint: '',
+      updatedAt: '',
+    },
+    id: ''
   },
   reducers: {
     login: (state, action) => {
@@ -16,9 +59,14 @@ export const userSlice = createSlice({
       state.user = null;
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(fetchUserGamePoint.fulfilled, (state, action) => {
+      state.data2 = action.payload
+    })
+  },
 });
 
-export const { login, logout ,register} = userSlice.actions;
+export const { login, logout, register } = userSlice.actions;
 
 // selectors
 export const selectUser = (state) => state.user.user;

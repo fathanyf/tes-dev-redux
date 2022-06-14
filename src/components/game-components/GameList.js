@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { getGameList } from '../../store/games/GamesSlice'
 import Link from 'next/link'
+import { totalReset } from '../../store/point/PointSlicer'
 
 const GameList = () => {
     const data = useSelector((state) => state.games.games)
