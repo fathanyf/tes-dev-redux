@@ -9,6 +9,7 @@ import { totalDraw, totalLoss, totalScore, totalWin } from '../../store/point/Po
 import { fetchUserGamePoint } from '../../store/users/UserSlice';
 import { serverTimestamp } from 'firebase/firestore';
 import { quitAndSave, getGameList } from '../../store/games/GamesSlice';
+import { toast } from 'react-toastify';
 
 const Title = styled.h1`
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -215,8 +216,22 @@ const RPS = () => {
             router,
             createdAt: serverTimestamp(),
         }
-        dispatch(quitAndSave(data))
-        dispatch(getGameList(playerId))
+
+        setLoading('Processing...')
+        await waiting(3000)
+
+        try {
+            dispatch(quitAndSave(data))
+            dispatch(getGameList(playerId))
+            toast.success('Saved Game!')
+            setLoading('Redirecting')
+            await waiting(1000)
+            router.push('/games')
+
+        } catch (err) {
+            console.log(err)
+        }
+
     }
 
 
@@ -362,7 +377,7 @@ const RPS = () => {
                         </PlayerChoice>
                     </div>
                     <div className="row d-flex justify-content-center">
-                        <button className='btn btn-danger btn-flat' type='submit' onClick={handleSaveGame}>quit and save</button>
+                        <button className='btn btn-danger btn-flat' type='submit' onClick={handleSaveGame}>{loading}</button>
                     </div>
                 </div>
             </section>
