@@ -84,7 +84,6 @@ const UpdatePage = () => {
   }, [dispatch, id]);
 
   const handleSubmit = (e) => {
-    toast.success("Update Successfully");
     try {
       e.preventDefault();
       const profileCollectionRef = doc(db, "gamepoint", id);
