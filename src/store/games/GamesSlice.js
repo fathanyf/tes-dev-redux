@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getDocs, collection, getDoc, serverTimestamp } from 'firebase/firestore'
+import { getDocs, collection, getDoc, serverTimestamp, limit } from 'firebase/firestore'
 import { db } from "../../config/firebase";
-import { addDoc, doc, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, doc, query, updateDoc, where, orderBy } from "firebase/firestore";
 
 
 export const get_games = () => {
@@ -18,6 +18,26 @@ export const get_games = () => {
             })
             .catch((error) => {
                 console.log(error)
+            })
+    }
+}
+
+export const get_game_board = () => {
+    return(dispatch) => {
+        const q  = query(collection(db, 'gamestats'), orderBy("createdAt", "desc"), limit(5))
+        getDocs(q)
+
+            .then((Snapshot) => {
+                console.log("2. berhasil dapat data :", Snapshot.docs);
+                let gamestats = []
+                Snapshot.docs.forEach((doc) =>{
+                    gamestats.push({ ...doc.data(), id: doc.id })
+                })
+                console.log(gamestats);
+                dispatch(gamesBoard(gamestats))
+            })
+            .catch((error) =>{
+                console.log(error);
             })
     }
 }
@@ -186,7 +206,7 @@ export const quitAndSaveDummy = createAsyncThunk(
 
 
 
-        // data.router.push('/games')
+        data.router.push('/games')
 
     }
 )
@@ -195,7 +215,11 @@ const initialState = {
     games: [],
     addGames: [],
     addDummyGames: [],
-    addGameData: []
+    addGameData: [],
+    gamesBoard: [],
+    loadingGames:true,
+    loadingGamesStats:true,
+    errorGamesStats:true
 }
 
 export const gamesSlice = createSlice({
@@ -206,6 +230,11 @@ export const gamesSlice = createSlice({
             state.games = action.payload
             state.isLoadingGames = false
         },
+        gamesBoard(state,action){
+            state.gamesBoard = action.payload
+            state.loadingGamesStats = false
+            state.errorGamesStats = false
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(quitAndSave.fulfilled, () => { })
@@ -215,9 +244,8 @@ export const gamesSlice = createSlice({
     }
 });
 
-export const { gamesData } = gamesSlice.actions;
+export const { gamesData, gamesBoard } = gamesSlice.actions;
 export default gamesSlice.reducer;
-
 
 
 

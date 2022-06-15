@@ -1,13 +1,24 @@
 import Head from 'next/head'
 import React from 'react'
+import GameBoard from '../../components/game-components/GameBoard'
+import LeaderBoard from '../../components/player-components/LeaderBoard'
+import PlayerList from '../../components/player-components/PlayerList'
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { get_game_board } from '../../store/games/GamesSlice'
+import { get_leader_board, get_player } from '../../store/players/PlayerSlice'
 import { fetchUserGame, fetchUserGamePoint } from '../../store/users/UserSlice'
+import { selectUser } from '../../store/users/UserSlice'
 
 const Account = () => {
     const dispatch = useDispatch()
     const router = useRouter()
+    const leaderBoard = useSelector((state) => state.player.leaderBoard)
+    const playerData = useSelector((state) => state.player.profileData)
+    const data = useSelector((state) => state.games.gamesBoard)
+
+    const user = useSelector(selectUser);
     const auth = useSelector((state) => state.user)
     useEffect(() => {
         if (auth.user?.uid) {
@@ -17,6 +28,26 @@ const Account = () => {
             // dispatch(fetchUserGame())
         }
     }, [auth.user?.uid, dispatch])
+    
+    console.log('data', data);
+    console.log('player', playerData);
+    console.log('leader', leaderBoard);
+    console.log('user', user);
+
+    useEffect(() =>{
+
+        dispatch(get_player())
+    }, [dispatch])
+
+    useEffect(() => {
+
+        dispatch(get_game_board())     
+    }, [dispatch])
+
+    useEffect(() => {
+
+        dispatch(get_leader_board())
+    }, [dispatch])
     return (
         <>
             <Head>
@@ -50,7 +81,7 @@ const Account = () => {
                                     <ul className="nav flex-column">
                                         <li className="nav-item">
                                             <a href="#" className="nav-link">
-                                                RPS Points <span className="float-right badge bg-warning">{auth.data2.totalpoint}</span>
+                                                RPS Points <span className="float-right badge bg-warning">{auth.data.totalpoint}</span>
                                             </a>
                                         </li>
                                     </ul>
@@ -68,7 +99,7 @@ const Account = () => {
                                     <h2 className='text-center text-light'>Game Board</h2>
                                 </div>
                                 <div className="card-body">
-
+                                < GameBoard />
                                 </div>
                             </div>
                         </div>
@@ -77,13 +108,13 @@ const Account = () => {
                                 <div className="card-header text-center">
                                     <h3 className="card-title">Player List</h3>
                                 </div>
-
+                                < PlayerList />
                             </div>
                             <div className="card card-danger">
                                 <div className="card-header">
                                     <h3 className="card-title">Leader Board</h3>
                                 </div>
-
+                                < LeaderBoard />
                             </div>
                         </div>
                     </div>
