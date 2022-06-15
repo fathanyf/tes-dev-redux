@@ -119,6 +119,16 @@ const UpdatePage = () => {
                 <form onSubmit={handleSubmit}>
                   <div className='card-body'>
                     <div className='form-group'>
+                      <label htmlFor='exampleInputEmail1'>Name</label>
+                      <input
+                        type='text'
+                        className='form-control'
+                        name='address'
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+                    <div className='form-group'>
                       <label htmlFor='exampleInputEmail1'>Address</label>
                       <input
                         type='text'
