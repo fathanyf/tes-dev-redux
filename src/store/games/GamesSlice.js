@@ -186,7 +186,7 @@ export const quitAndSaveDummy = createAsyncThunk(
 
 
 
-        data.router.push('/games')
+        // data.router.push('/games')
 
     }
 )

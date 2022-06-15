@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import { randomizeNumber } from '../../store/point/PointSlicer'
 import { fetchUserGamePoint } from '../../store/users/UserSlice'
 import { getGameList, quitAndSaveDummy } from '../../store/games/GamesSlice'
+import { toast } from 'react-toastify'
 
 const Game = styled.div`
 display: flex;
@@ -37,6 +38,8 @@ border-radius: 10px;
 cursor: pointer;
 `
 
+const waiting = async (t) => new Promise(r => setTimeout(r, t))
+
 const Dummy = () => {
     const dispatch = useDispatch();
     const router = useRouter()
@@ -44,6 +47,8 @@ const Dummy = () => {
     const point = useSelector(state => state.pointReducer)
 
     const auth = useSelector((state) => state.user)
+
+    const [loading, setLoading] = useState('Quit and Save')
 
 
     useEffect(() => {
@@ -78,8 +83,20 @@ const Dummy = () => {
             qstring
         }
 
-        dispatch(quitAndSaveDummy(data))
-        dispatch(getGameList(playerId))
+        setLoading('Processing...')
+        await waiting(3000)
+
+        try {
+            dispatch(quitAndSaveDummy(data))
+            dispatch(getGameList(playerId))
+            toast.success('Saved Game!')
+            setLoading('Redirecting')
+            await waiting(1000)
+            router.push('/games')
+
+        } catch (err) {
+            console.log(err)
+        }
 
 
         // const { name } = auth.data.name
@@ -104,7 +121,7 @@ const Dummy = () => {
             </div>
             <Button onClick={handleClick}>Randomize Number</Button>
             <Result>{point.score}</Result>
-            <Submit onClick={handleSaveGame}>Submit</Submit>
+            <Submit onClick={handleSaveGame}>{loading}</Submit>
         </Game>
     )
 }
